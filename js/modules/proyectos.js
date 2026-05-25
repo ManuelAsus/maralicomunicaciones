@@ -124,6 +124,7 @@ export async function render(container, user) {
     };
     window.pry_eliminarImagen = pry_eliminarImagen;
     window.pry_eliminarReporte = (reporteId, proyectoId) => pry_eliminarReporte(reporteId, proyectoId, user.uid);
+    window.pry_descargarReportePDF = pry_descargarReportePDF;
 }
 
 async function pry_cargarProyectos(userId) {
@@ -263,7 +264,21 @@ async function pry_verProyecto(id, userId) {
         // Renderizar reportes
         const repsDiv = document.getElementById('pry_reps');
         if (p.reportes && p.reportes.length > 0) {
-            repsDiv.innerHTML = p.reportes.map(r => `<div style="border:1px solid #eee;padding:8px;margin-bottom:6px;border-radius:6px"><strong>${r.tipo_reporte}</strong><div style="color:#666">${new Date(r.fecha_creacion.toDate?.() || r.fecha_creacion).toLocaleString()}</div><div style="margin-top:6px"><button class="btn-small btn-delete" onclick="pry_eliminarReporte('${r.id}', '${p.id}')">Eliminar</button></div></div>`).join('');
+            repsDiv.innerHTML = p.reportes.map(r => `
+                <div style="border:1px solid #eee;padding:12px;margin-bottom:6px;border-radius:6px;background:#fafafa">
+                    <div style="display:flex;justify-content:space-between;align-items:start;">
+                        <div style="flex:1;">
+                            <strong>${r.tipo_reporte}</strong>
+                            <div style="color:#666;font-size:0.9em;margin-top:4px">${new Date(r.fecha_creacion.toDate?.() || r.fecha_creacion).toLocaleString()}</div>
+                            ${r.contenido ? `<div style="color:#555;margin-top:6px;font-size:0.95em">${r.contenido}</div>` : ''}
+                        </div>
+                        <div style="display:flex;gap:6px;flex-shrink:0;">
+                            <button class="btn-small" onclick="pry_descargarReportePDF('${r.id}', '${p.id}', '${p.nombre}', '${r.tipo_reporte}')" style="background:#28a745;color:white;border:none;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:0.85em;">📥 PDF</button>
+                            <button class="btn-small btn-delete" onclick="pry_eliminarReporte('${r.id}', '${p.id}')">Eliminar</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
         } else {
             repsDiv.innerHTML = '<p style="color:#666;">Sin reportes</p>';
         }
@@ -502,5 +517,228 @@ async function pry_eliminarReporte(reporteId, proyectoId, userId) {
         await pry_verProyecto(proyectoId, userId);
     } catch (error) {
         alert('Error: ' + error.message);
+    }
+}
+
+async function pry_descargarReportePDF(reporteId, proyectoId, nombreProyecto, tipoReporte) {
+    try {
+        // Obtener datos del proyecto
+        const proyectoRef = doc(db, 'proyectos', proyectoId);
+        const proyectoSnap = await getDoc(proyectoRef);
+        const proyecto = proyectoSnap.data();
+        
+        // Encontrar el reporte
+        const reporte = (proyecto.reportes || []).find(r => r.id === reporteId);
+        if (!reporte) {
+            alert('Reporte no encontrado');
+            return;
+        }
+        
+        // Crear el HTML del reporte en formato profesional
+        const fechaReporte = new Date(reporte.fecha_creacion.toDate?.() || reporte.fecha_creacion).toLocaleDateString('es-MX', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        const fechaHoy = new Date().toLocaleDateString('es-MX', { 
+            year: 'numeric', 
+            month: '2-digit', 
+            day: '2-digit'
+        });
+        
+        // Buscar el trabajador responsable si existe
+        let responsableName = 'N/A';
+        let responsableCargo = 'N/A';
+        if (reporte.trabajador_id && trabajadores) {
+            const trab = trabajadores.find(t => t.id === reporte.trabajador_id);
+            if (trab) {
+                responsableName = trab.nombre;
+                responsableCargo = trab.cargo || 'N/A';
+            }
+        }
+        
+        // Obtener las imágenes del proyecto
+        const imagenesHTML = (proyecto.imagenes || [])
+            .map(img => `<div style="text-align:center;margin:15px 0;">
+                <img src="${img.datos_base64}" alt="Imagen" style="max-width:200px;max-height:200px;border:1px solid #ddd;border-radius:4px;padding:8px;background:white;">
+                <p style="font-size:11px;color:#666;margin-top:4px;">${img.nombre_original || 'Imagen sin nombre'}</p>
+            </div>`).join('');
+        
+        const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; color: #333; background: white; }
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 3px solid #fcc30b; 
+            padding: 15px 0 10px 0;
+            margin-bottom: 20px;
+        }
+        .header-left { flex: 1; }
+        .header-right { text-align: right; font-size: 24px; font-weight: bold; color: #fcc30b; }
+        .date { font-size: 12px; color: #666; margin-bottom: 5px; }
+        .title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 5px; }
+        .subtitle { font-size: 12px; color: #666; }
+        
+        .section-header {
+            background: #f0f0f0;
+            border-left: 4px solid #0066cc;
+            padding: 10px 15px;
+            margin: 20px 0 10px 0;
+            font-weight: bold;
+            color: #0066cc;
+        }
+        
+        .info-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+            margin: 15px 0;
+        }
+        
+        .info-box { 
+            border-left: 4px solid #0066cc; 
+            padding: 10px 15px;
+            background: #f9f9f9;
+        }
+        
+        .info-label { 
+            font-weight: bold; 
+            color: #0066cc;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        
+        .info-value { 
+            color: #333;
+            font-size: 13px;
+            padding: 5px 0;
+        }
+        
+        .content-section {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border: 1px solid #eee;
+            border-radius: 4px;
+        }
+        
+        .images-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 4px;
+        }
+        
+        .page-break { page-break-after: always; }
+        
+        hr { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
+    </style>
+</head>
+<body>
+    <!-- Encabezado -->
+    <div class="header">
+        <div class="header-left">
+            <div class="date">${fechaHoy}, ${new Date().toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}</div>
+            <div class="title">${tipoReporte.toUpperCase()}</div>
+            <div class="subtitle">${nombreProyecto}</div>
+        </div>
+        <div class="header-right">MARALI</div>
+    </div>
+    
+    <!-- Información del Proyecto -->
+    <div class="info-grid">
+        <div class="info-box">
+            <div class="info-label">Proyecto</div>
+            <div class="info-value">${nombreProyecto}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">Ubicación</div>
+            <div class="info-value">${proyecto.lugar || 'N/A'}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">Tipo de Reporte</div>
+            <div class="info-value">${tipoReporte}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">Fecha de Reporte</div>
+            <div class="info-value">${fechaReporte}</div>
+        </div>
+    </div>
+    
+    <hr>
+    
+    <!-- Descripción del Proyecto -->
+    ${proyecto.descripcion ? `
+        <div class="section-header">📋 Descripción del Proyecto</div>
+        <div class="content-section">${proyecto.descripcion}</div>
+    ` : ''}
+    
+    <!-- Contenido del Reporte -->
+    <div class="section-header">📝 Contenido del Reporte</div>
+    <div class="content-section">${reporte.contenido || 'Sin contenido especificado'}</div>
+    
+    <!-- Imágenes -->
+    ${imagenesHTML ? `
+        <div class="section-header">📸 Imágenes del Proyecto</div>
+        <div class="images-container">${imagenesHTML}</div>
+    ` : ''}
+    
+    <hr>
+    
+    <!-- Responsable Asignado -->
+    <div class="section-header">👤 Responsable del Reporte</div>
+    <div class="info-grid">
+        <div class="info-box">
+            <div class="info-label">Nombre</div>
+            <div class="info-value">${responsableName}</div>
+        </div>
+        <div class="info-box">
+            <div class="info-label">Cargo</div>
+            <div class="info-value">${responsableCargo}</div>
+        </div>
+    </div>
+    
+    <hr style="margin-top: 30px;">
+    <div style="text-align: center; color: #999; font-size: 11px; margin-top: 20px;">
+        Documento generado por Marali Comunicaciones | ${new Date().toLocaleDateString('es-MX')}
+    </div>
+</body>
+</html>
+        `;
+        
+        // Crear el PDF
+        const element = document.createElement('div');
+        element.innerHTML = htmlContent;
+        
+        const opt = {
+            margin: 10,
+            filename: `Reporte_${tipoReporte.replace(/\s+/g, '_')}_${Date.now()}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'mm', format: 'letter', orientation: 'portrait' }
+        };
+        
+        // Usar html2pdf si está disponible
+        if (typeof html2pdf !== 'undefined') {
+            html2pdf().set(opt).from(element).save();
+        } else {
+            alert('Error: librería PDF no disponible. Por favor recarga la página.');
+        }
+    } catch (error) {
+        console.error('Error descargando reporte:', error);
+        alert('Error al descargar reporte: ' + error.message);
     }
 }
