@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Usuario Demo - Marali Comunicaciones</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c245c 0%, #5c305c 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        
+        h1 {
+            color: #2c245c;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            color: #999;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        
+        .steps {
+            margin: 30px 0;
+        }
+        
+        .step {
+            background: #f5f5f5;
+            border-left: 4px solid #fcc30b;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        
+        .step h3 {
+            color: #2c245c;
+            margin-bottom: 8px;
+        }
+        
+        .step p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .step code {
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            color: #c00;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #fcc30b;
+            box-shadow: 0 0 0 3px rgba(252, 195, 11, 0.1);
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #fcc30b 0%, #f3992c 100%);
+            color: #2c245c;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(252, 195, 11, 0.3);
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #2c245c;
+        }
+        
+        .btn-secondary:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+        
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .alert {
+            padding: 12px;
+            margin: 20px 0;
+            border-radius: 6px;
+            display: none;
+        }
+        
+        .alert.show {
+            display: block;
+        }
+        
+        .alert.success {
+            background: #efe;
+            color: #0a0;
+            border: 1px solid #cfc;
+        }
+        
+        .alert.error {
+            background: #fee;
+            color: #c00;
+            border: 1px solid #fcc;
+        }
+        
+        .alert.info {
+            background: #f0f7ff;
+            color: #006;
+            border: 1px solid #cde;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(44, 36, 92, 0.2);
+            border-top-color: #2c245c;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .logs {
+            background: #1e1e1e;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            line-height: 1.4;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin: 3px 0;
+        }
+        
+        .log-success { color: #0f0; }
+        .log-error { color: #f00; }
+        .log-info { color: #0ff; }
+        .log-warn { color: #ff0; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Crear Usuario Demo</h1>
+        <p class="subtitle">Si el usuario demo no se creó automáticamente, crea uno aquí manualmente</p>
+        
+        <div class="alert" id="alert"></div>
+        
+        <div class="steps">
+            <div class="step">
+                <h3>✅ Paso 1: Automático (Recomendado)</h3>
+                <p>Haz click en el botón "Crear Automáticamente" abajo. Espera 2-3 segundos.</p>
+            </div>
+            
+            <div class="step">
+                <h3>⚙️ Paso 2: Manual (Si el automático falla)</h3>
+                <p>Usa el formulario abajo para crear el usuario con datos específicos.</p>
+            </div>
+            
+            <div class="step">
+                <h3>🔑 Paso 3: Iniciar Sesión</h3>
+                <p>Una vez creado, ve a <code>index.html</code> e intenta login con:<br>
+                Usuario: <code>admin</code><br>
+                Contraseña: <code>admin123</code></p>
+            </div>
+        </div>
+        
+        <!-- Opción 1: Crear automáticamente -->
+        <button class="btn-primary" onclick="crearAutomaticamente()" id="btnAuto" style="width: 100%; margin-bottom: 20px;">
+            <span id="autoText">🤖 Crear Automáticamente</span>
+            <span id="autoLoading" class="loading" style="display: none;"></span>
+        </button>
+        
+        <!-- Opción 2: Crear manualmente -->
+        <h3 style="color: #2c245c; margin: 30px 0 20px;">Crear Manualmente</h3>
+        
+        <form onsubmit="crearManualmente(event)">
+            <div class="form-group">
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" value="admin@maralicomunicaciones.demo" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Contraseña:</label>
+                <input type="password" id="password" value="admin123" required minlength="6">
+            </div>
+            
+            <div class="form-group">
+                <label for="usuario">Usuario (para login):</label>
+                <input type="text" id="usuario" value="admin" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="nombre">Nombre Completo:</label>
+                <input type="text" id="nombre" value="Administrador Demo" required>
+            </div>
+            
+            <div class="button-group">
+                <button type="button" class="btn-secondary" onclick="window.location.href='index.html'">
+                    ← Volver a Login
+                </button>
+                <button type="submit" class="btn-primary" id="btnManual">
+                    <span id="manualText">✨ Crear Usuario</span>
+                    <span id="manualLoading" class="loading" style="display: none;"></span>
+                </button>
+            </div>
+        </form>
+        
+        <div class="logs" id="logs" style="display: none;"></div>
+    </div>
+
+    <script type="module">
+        const logsDiv = document.getElementById('logs');
+        const alertDiv = document.getElementById('alert');
+        
+        // Interceptar console
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addLog(type, message) {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `[${type.toUpperCase()}] ${message}`;
+            logsDiv.appendChild(entry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog(...args);
+            addLog('info', args.join(' '));
+        };
+        console.error = function(...args) {
+            originalError(...args);
+            addLog('error', args.join(' '));
+        };
+        console.warn = function(...args) {
+            originalWarn(...args);
+            addLog('warn', args.join(' '));
+        };
+        
+        window.showAlert = (type, message) => {
+            alertDiv.className = `alert show ${type}`;
+            alertDiv.textContent = message;
+            setTimeout(() => alertDiv.className = 'alert', 5000);
+        };
+        
+        window.crearAutomaticamente = async () => {
+            try {
+                logsDiv.style.display = 'block';
+                addLog('info', '======= INICIANDO CREACIÓN AUTOMÁTICA =======');
+                
+                const btnAuto = document.getElementById('btnAuto');
+                const autoText = document.getElementById('autoText');
+                const autoLoading = document.getElementById('autoLoading');
+                
+                btnAuto.disabled = true;
+                autoText.style.display = 'none';
+                autoLoading.style.display = 'inline-block';
+                
+                const { createDemoUsers } = await import('./js/auth.js?v=3');
+                await createDemoUsers();
+                
+                addLog('success', '✅ ¡Usuario creado exitosamente!');
+                window.showAlert('success', '✅ Usuario demo creado. Intenta login en index.html');
+                
+            } catch (error) {
+                addLog('error', '❌ Error: ' + error.message);
+                window.showAlert('error', 'Error: ' + error.message);
+            } finally {
+                const btnAuto = document.getElementById('btnAuto');
+                const autoText = document.getElementById('autoText');
+                const autoLoading = document.getElementById('autoLoading');
+                btnAuto.disabled = false;
+                autoText.style.display = 'inline';
+                autoLoading.style.display = 'none';
+            }
+        };
+        
+        window.crearManualmente = async (e) => {
+            e.preventDefault();
+            
+            try {
+                logsDiv.style.display = 'block';
+                addLog('info', '======= CREACIÓN MANUAL =======');
+                
+                const btnManual = document.getElementById('btnManual');
+                const manualText = document.getElementById('manualText');
+                const manualLoading = document.getElementById('manualLoading');
+                
+                btnManual.disabled = true;
+                manualText.style.display = 'none';
+                manualLoading.style.display = 'inline-block';
+                
+                const { auth, db } = await import('./js/firebase-config.js?v=2');
+                const { createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js');
+                const { setDoc, doc } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
+                
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                const usuario = document.getElementById('usuario').value;
+                const nombre = document.getElementById('nombre').value;
+                
+                addLog('info', `Creando usuario con email: ${email}`);
+                
+                // Paso 1: Crear en Auth
+                addLog('info', 'Paso 1: Creando en Firebase Authentication...');
+                let uid;
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    uid = userCredential.user.uid;
+                    addLog('success', `✓ Auth creado con UID: ${uid}`);
+                } catch (err) {
+                    if (err.code === 'auth/email-already-in-use') {
+                        addLog('warn', 'Email ya existe en Auth, continuando...');
+                        // Intentar encontrar el uid
+                        const { query, where, getDocs, collection } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
+                        const q = query(collection(db, 'usuarios'), where('email', '==', email));
+                        const snapshot = await getDocs(q);
+                        if (!snapshot.empty) {
+                            uid = snapshot.docs[0].id;
+                            addLog('success', `✓ UID encontrado: ${uid}`);
+                        } else {
+                            throw new Error('No se pudo encontrar el usuario en Firestore');
+                        }
+                    } else {
+                        throw err;
+                    }
+                }
+                
+                // Paso 2: Crear en Firestore
+                addLog('info', 'Paso 2: Creando en Firestore...');
+                await setDoc(doc(db, 'usuarios', uid), {
+                    uid: uid,
+                    email: email,
+                    nombre_completo: nombre,
+                    usuario: usuario,
+                    telefono: '+52 1 746 102 3929',
+                    fecha_creacion: new Date(),
+                    estado: 'activo'
+                });
+                addLog('success', '✓ Documento creado en Firestore');
+                
+                addLog('success', '✅ ¡Usuario creado exitosamente!');
+                window.showAlert('success', `✅ Usuario "${usuario}" creado con éxito. Intenta login en index.html`);
+                
+            } catch (error) {
+                addLog('error', `❌ Error: ${error.message}`);
+                window.showAlert('error', 'Error: ' + error.message);
+            } finally {
+                const btnManual = document.getElementById('btnManual');
+                const manualText = document.getElementById('manualText');
+                const manualLoading = document.getElementById('manualLoading');
+                btnManual.disabled = false;
+                manualText.style.display = 'inline';
+                manualLoading.style.display = 'none';
+            }
+        };
+    </script>
+</body>
+</html>

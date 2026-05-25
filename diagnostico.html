@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Diagnóstico - Marali Comunicaciones</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c245c;
+            border-bottom: 2px solid #fcc30b;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .status.ok {
+            background: #efe;
+            color: #0a0;
+            border-left: 4px solid #0a0;
+        }
+        .status.error {
+            background: #fee;
+            color: #c00;
+            border-left: 4px solid #c00;
+        }
+        .status.pending {
+            background: #ffd;
+            color: #880;
+            border-left: 4px solid #880;
+        }
+        button {
+            background: #fcc30b;
+            color: #2c245c;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 5px 10px 0;
+        }
+        button:hover {
+            background: #f3992c;
+        }
+        .logs {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Diagnóstico de Marali Comunicaciones</h1>
+        
+        <h2>Verificaciones del Sistema</h2>
+        <div id="results"></div>
+
+        <h2>Acciones</h2>
+        <button onclick="testFirebase()">1️⃣ Probar Firebase</button>
+        <button onclick="createDemo()">2️⃣ Crear Usuario Demo</button>
+        <button onclick="listUsers()">3️⃣ Listar Usuarios</button>
+        <button onclick="testLogin()">4️⃣ Probar Login</button>
+        <button onclick="clearLogs()">Limpiar Logs</button>
+
+        <h2>Logs de Consola</h2>
+        <div class="logs" id="logs"></div>
+    </div>
+
+    <script type="module">
+        // Variables globales
+        const resultsDiv = document.getElementById('results');
+        const logsDiv = document.getElementById('logs');
+
+        // Interceptar console.log
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        function addLog(type, message) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `[${type}] ${message}`;
+            logsDiv.appendChild(entry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog(...args);
+            addLog('LOG', args.join(' '));
+        };
+        console.error = function(...args) {
+            originalError(...args);
+            addLog('ERROR', args.join(' '));
+        };
+        console.warn = function(...args) {
+            originalWarn(...args);
+            addLog('WARN', args.join(' '));
+        };
+
+        window.clearLogs = () => {
+            logsDiv.innerHTML = '';
+        };
+
+        // Agregar estado inicial
+        function addStatus(name, status, message) {
+            const div = document.createElement('div');
+            div.className = `status ${status}`;
+            div.innerHTML = `<strong>${name}:</strong> ${message}`;
+            resultsDiv.appendChild(div);
+        }
+
+        window.testFirebase = async function() {
+            try {
+                console.log('🔍 Probando Firebase...');
+                const { auth, db } = await import('./js/firebase-config.js?v=2');
+                console.log('✓ Firebase conectado');
+                addStatus('Firebase', 'ok', 'Conectado correctamente');
+            } catch (error) {
+                console.error('✗ Error en Firebase:', error);
+                addStatus('Firebase', 'error', 'Error: ' + error.message);
+            }
+        };
+
+        window.createDemo = async function() {
+            try {
+                console.log('🔨 Creando usuario demo...');
+                const { createDemoUsers } = await import('./js/auth.js?v=3');
+                await createDemoUsers();
+                console.log('✓ Usuario demo procesado');
+                addStatus('Usuario Demo', 'ok', 'Proceso completado - ver logs');
+            } catch (error) {
+                console.error('✗ Error:', error);
+                addStatus('Usuario Demo', 'error', 'Error: ' + error.message);
+            }
+        };
+
+        window.listUsers = async function() {
+            try {
+                console.log('📋 Listando usuarios...');
+                const { db } = await import('./js/firebase-config.js?v=2');
+                const { collection, getDocs } = await import('https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js');
+                
+                const usuarios = await getDocs(collection(db, 'usuarios'));
+                console.log(`✓ Total usuarios: ${usuarios.size}`);
+                usuarios.forEach(doc => {
+                    console.log('  - ' + doc.data().usuario + ' (' + doc.data().email + ')');
+                });
+                addStatus('Usuarios', 'ok', `Total: ${usuarios.size} - Ver logs para detalles`);
+            } catch (error) {
+                console.error('✗ Error:', error);
+                addStatus('Usuarios', 'error', 'Error: ' + error.message);
+            }
+        };
+
+        window.testLogin = async function() {
+            try {
+                console.log('🔐 Probando login con admin/admin123...');
+                const { loginUser } = await import('./js/auth.js?v=3');
+                const result = await loginUser('admin', 'admin123');
+                console.log('✓ Login exitoso:', result.email);
+                addStatus('Login Test', 'ok', 'Login exitoso - ' + result.email);
+            } catch (error) {
+                console.error('✗ Error en login:', error.message);
+                addStatus('Login Test', 'error', 'Error: ' + error.message);
+            }
+        };
+
+        // Verificación inicial
+        window.onload = () => {
+            addStatus('Página', 'ok', 'Diagnóstico cargado');
+            console.log('✓ Sistema de diagnóstico listo');
+        };
+    </script>
+</body>
+</html>

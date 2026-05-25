@@ -1,0 +1,41 @@
+## ⚡ SOLUCIÓN RÁPIDA EN 2 MINUTOS
+
+### Paso 1: Limpiar Caché (30 segundos)
+```
+Presiona: Ctrl + Shift + Delete
+Selecciona: "Todos los tiempos"
+Marca: "Cookies" y "Caché"
+Click: "Limpiar datos"
+Recarga: Ctrl + F5
+```
+
+### Paso 2: Diagnosticar (1 minuto 30 segundos)
+1. Abre `diagnostico.html` en tu navegador
+2. Click en botón "🔍 Probar Firebase"
+3. Click en botón "🔨 Crear Usuario Demo"
+4. Click en botón "4️⃣ Probar Login"
+5. **Mira los logs abajo - Deberían ser VERDES (✓)**
+
+### Paso 3: Intentar Login (30 segundos)
+1. Ve a `index.html`
+2. Usuario: `admin`
+3. Contraseña: `admin123`
+4. Click "Iniciar Sesión"
+
+---
+
+## Si AÚN no funciona...
+
+En `diagnostico.html`, **copia TODO lo que dice en los logs rojos** y pegalo en tu respuesta siguiente.
+
+Eso nos dirá exactamente qué está mal.
+
+---
+
+## Cambios Hechos (Para Tu Información)
+- Agregamos parámetros de caché busting (?v=2, ?v=3)
+- Mejoramos logging en auth.js
+- Mejoramos validación de errores
+- Creamos diagnostico.html para probar rápidamente
+
+Archivo actualizado: `FIX_AUTH_UNDEFINED.md` (instrucciones completas)

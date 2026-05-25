@@ -1,0 +1,490 @@
+/**
+ * Estilos del Dashboard - Layout principal
+ */
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    background: #f5f5f5;
+}
+
+/* ==================== SIDEBAR ====================*/
+
+.sidebar {
+    width: 260px;
+    background: linear-gradient(180deg, #2c245c 0%, #5c305c 100%);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    height: 100vh;
+    overflow-y: auto;
+    z-index: 100;
+}
+
+.sidebar-header {
+    padding: 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.sidebar-logo {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px;
+}
+
+.sidebar-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #fcc30b;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 16px 0;
+}
+
+.sidebar-nav ul {
+    list-style: none;
+}
+
+.sidebar-nav li {
+    margin: 0;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 24px;
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+    border-left: 4px solid transparent;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.nav-item.active {
+    background: rgba(252, 195, 11, 0.2);
+    color: #fcc30b;
+    border-left-color: #fcc30b;
+}
+
+.nav-item .icon {
+    font-size: 20px;
+}
+
+.sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-logout {
+    font-size: 13px;
+    padding: 8px 12px;
+}
+
+/* ==================== MAIN CONTENT ====================*/
+
+.main-content {
+    flex: 1;
+    margin-left: 260px;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-header {
+    background: white;
+    padding: 20px 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.header-title {
+    flex: 1;
+}
+
+.header-title h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.header-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 16px;
+    border-left: 1px solid #eee;
+}
+
+.header-user span {
+    font-size: 13px;
+    color: #999;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f0f0;
+    object-fit: cover;
+}
+
+/* ==================== MODULE CONTAINER ====================*/
+
+.module-container {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.module-content {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ==================== TABS ====================*/
+
+.tabs {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    color: #999;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    font-size: 14px;
+}
+
+.tab-btn:hover {
+    color: var(--primary);
+}
+
+.tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ==================== MÓDULOS ====================*/
+
+.module-form {
+    background: white;
+    border-radius: 8px;
+    padding: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.module-form h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--primary);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+/* ==================== LISTA DE ITEMS ====================*/
+
+.items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    background: white;
+    border-radius: 6px;
+    border-left: 4px solid var(--primary);
+    transition: all 0.2s;
+}
+
+.item-row:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.item-info {
+    flex: 1;
+}
+
+.item-title {
+    font-weight: 600;
+    color: var(--dark-1);
+    margin-bottom: 4px;
+}
+
+.item-subtitle {
+    font-size: 13px;
+    color: #999;
+}
+
+.item-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.item-actions button {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* ==================== BÚSQUEDA Y FILTROS ====================*/
+
+.search-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: white;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.search-bar input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.search-bar button {
+    padding: 10px 16px;
+}
+
+/* ==================== ESTADOS ====================*/
+
+.badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge-success {
+    background: #efe;
+    color: #0a0;
+}
+
+.badge-danger {
+    background: #fee;
+    color: #c00;
+}
+
+.badge-warning {
+    background: #ffe;
+    color: #a80;
+}
+
+.badge-info {
+    background: #eef;
+    color: #00a;
+}
+
+/* ==================== RESPONSIVE ====================*/
+
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .main-content {
+        margin-left: 220px;
+    }
+
+    .module-container {
+        padding: 20px;
+    }
+
+    .top-header {
+        padding: 16px 20px;
+        gap: 16px;
+    }
+
+    .header-title h1 {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -260px;
+        width: 260px;
+        height: 100vh;
+        z-index: 200;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar.open {
+        left: 0;
+        box-shadow: 0 0 0 999px rgba(0, 0, 0, 0.5);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .top-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .header-user {
+        width: 100%;
+        border-left: none;
+        border-top: 1px solid #eee;
+        padding-top: 16px;
+    }
+
+    .module-container {
+        padding: 16px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    .table th,
+    .table td {
+        padding: 6px;
+    }
+
+    .item-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .item-actions {
+        width: 100%;
+        margin-top: 12px;
+    }
+
+    .item-actions button {
+        flex: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .sidebar {
+        width: 100%;
+        left: -100%;
+    }
+
+    .top-header {
+        padding: 12px 16px;
+    }
+
+    .header-title h1 {
+        font-size: 18px;
+    }
+
+    .module-container {
+        padding: 12px;
+    }
+
+    .module-form {
+        padding: 16px;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .tabs {
+        gap: 4px;
+        overflow-x: auto;
+    }
+
+    .tab-btn {
+        padding: 10px 16px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+}
+
+/* ==================== ANIMACIONES ====================*/
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+.slide-in {
+    animation: slideInRight 0.3s ease;
+}

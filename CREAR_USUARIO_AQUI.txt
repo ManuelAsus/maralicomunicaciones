@@ -1,0 +1,47 @@
+# 🆘 Error: "Usuario o contraseña incorrectos" - SOLUCIÓN RÁPIDA
+
+## El Problema
+Intentas login con `admin` / `admin123` pero dice "Usuario o contraseña incorrectos"
+→ El usuario demo NO FUE CREADO
+
+## La Solución (Elige una)
+
+### ✅ OPCIÓN 1 - Lo Más Fácil (RECOMENDADO)
+1. Abre este archivo: **crear-usuario-demo.html**
+2. Haz click en botón azul: "🤖 Crear Automáticamente"
+3. Espera 2-3 segundos
+4. Verás: ✅ Usuario creado
+5. Ve a **index.html** → Login con `admin` / `admin123`
+
+### ⚙️ OPCIÓN 2 - Manual
+1. Abre: **crear-usuario-demo.html**
+2. Llena el formulario (ya está pre-llenado)
+3. Click: "✨ Crear Usuario"
+4. Ve a **index.html** → Login
+
+### 🔍 OPCIÓN 3 - Diagnosticar
+1. Abre: **diagnostico.html**
+2. Click en botón "🔨 Crear Usuario Demo"
+3. Mira los logs - verás exactamente qué falla
+4. Copia el error y envíalo
+
+### 🚀 OPCIÓN 4 - Manual en Firebase Console
+Si las opciones anteriores no funcionan, hazlo manualmente:
+1. Firebase Console → Authentication
+2. Crear usuario: admin@maralicomunicaciones.demo / admin123
+3. Copiar el UID
+4. Firestore → Colección "usuarios" → Nuevo documento
+5. ID: [el UID que copiaste]
+6. Agregar campos:
+   - uid: [el UID]
+   - email: admin@maralicomunicaciones.demo
+   - usuario: admin
+   - nombre_completo: Administrador Demo
+   - estado: activo
+   - fecha_creacion: (fecha de hoy)
+7. Guardar
+8. Ir a **index.html** → Login
+
+---
+
+**PRÓXIMO PASO:** Abre `crear-usuario-demo.html` ahora mismo 👈

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marali Comunicaciones - Dashboard</title>
+    <link rel="icon" href="assets/logo.png" type="image/png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="admin.jpg" alt="Logo" class="sidebar-logo">
+                <h2>Marali</h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                <ul id="menuItems">
+                    <li>
+                        <a href="#" onclick="loadModule('home')" class="nav-item active">
+                            <span class="icon">📊</span>
+                            <span>Inicio</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="loadModule('inventario')" class="nav-item">
+                            <span class="icon">📦</span>
+                            <span>Inventario</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="loadModule('ventas')" class="nav-item">
+                            <span class="icon">💳</span>
+                            <span>Ventas</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="loadModule('historial')" class="nav-item">
+                            <span class="icon">📋</span>
+                            <span>Historial</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="loadModule('trabajadores')" class="nav-item">
+                            <span class="icon">👥</span>
+                            <span>Trabajadores</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="loadModule('impuestos')" class="nav-item">
+                            <span class="icon">💰</span>
+                            <span>Impuestos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="loadModule('tickets')" class="nav-item">
+                            <span class="icon">🎫</span>
+                            <span>Tickets</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="loadModule('proyectos')" class="nav-item">
+                            <span class="icon">📁</span>
+                            <span>Proyectos</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#" onclick="loadModule('facturacion')" class="nav-item">
+                            <span class="icon">🧾</span>
+                            <span>Facturación</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <div class="sidebar-footer">
+                <button onclick="logoutUser()" class="btn-logout">Cerrar Sesión</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-title">
+                    <h1>Bienvenido, <span id="userName">Usuario</span></h1>
+                </div>
+                <div class="header-user">
+                    <span id="userEmail"></span>
+                    <img id="userAvatarImg" alt="Avatar" class="user-avatar">
+                </div>
+            </header>
+
+            <!-- Module Container -->
+            <div id="moduleContainer" class="module-container">
+                <!-- Los módulos se cargan aquí dinámicamente -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para alertas/confirmaciones -->
+    <div id="modalOverlay" class="modal-overlay" style="display: none;"></div>
+    <div id="alertModal" class="alert-modal" style="display: none;">
+        <div class="modal-content">
+            <h3 id="modalTitle">Alerta</h3>
+            <p id="modalMessage"></p>
+            <div class="modal-buttons">
+                <button onclick="closeModal()" class="btn-secondary">Cerrar</button>
+                <button id="modalConfirmBtn" onclick="confirmAction()" class="btn-primary" style="display: none;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { auth, db } from './js/firebase-config.js?v=2';
+        import { logoutUser as firebaseLogout, getCurrentUser, getUserData, onAuthStateChanged } from './js/auth.js?v=3';
+        import { getDashboardStats } from './js/api.js?v=2';
+
+        // Variables globales
+        let currentUser = null;
+        let currentModule = null;
+
+        // ==================== MANEJO DE AUTENTICACIÓN ====================
+
+        onAuthStateChanged(async (user) => {
+            if (user) {
+                try {
+                    currentUser = user;
+                    const userData = await getUserData(user.uid);
+                    
+                    if (userData) {
+                        document.getElementById('userName').textContent = userData.nombre_completo || 'Usuario';
+                        document.getElementById('userEmail').textContent = userData.email || '';
+                    } else {
+                        document.getElementById('userName').textContent = user.displayName || 'Usuario';
+                        document.getElementById('userEmail').textContent = user.email || '';
+                    }
+
+                    // Configurar avatar random
+                    const avatarOptions = [
+                        'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.uid,
+                        'https://api.dicebear.com/7.x/bottts/svg?seed=' + user.uid,
+                        'https://api.dicebear.com/7.x/pixel-art/svg?seed=' + user.uid,
+                        'https://api.dicebear.com/7.x/personas/svg?seed=' + user.uid
+                    ];
+                    const randomAvatar = avatarOptions[Math.floor(Math.random() * avatarOptions.length)];
+                    document.getElementById('userAvatarImg').src = randomAvatar;
+
+                    // Cargar primer módulo
+                    if (!currentModule) {
+                        loadModule('home');
+                    }
+                } catch (error) {
+                    console.error('Error cargando datos del usuario:', error);
+                    document.getElementById('userName').textContent = 'Usuario';
+                    loadModule('home');
+                }
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // ==================== MANEJO DE MÓDULOS ====================
+
+        window.loadModule = async (moduleName) => {
+            try {
+                currentModule = moduleName;
+
+                // Actualizar nav activo
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                
+                // Encontrar y activar el botón correcto
+                const navButtons = document.querySelectorAll('.nav-item');
+                navButtons.forEach(btn => {
+                    if (btn.textContent.toLowerCase().includes(moduleName.toLowerCase())) {
+                        btn.classList.add('active');
+                    }
+                });
+
+                // Cargar módulo
+                const cacheBuster = Date.now();
+                const { render } = await import(`./js/modules/${moduleName}.js?v=${cacheBuster}`);
+                const container = document.getElementById('moduleContainer');
+                
+                if (!container) {
+                    console.error('Contenedor de módulo no encontrado');
+                    return;
+                }
+
+                container.innerHTML = '';
+
+                // Renderizar módulo con manejo de errores
+                if (!currentUser) {
+                    showAlert('error', 'Usuario no autenticado');
+                    return;
+                }
+
+                await render(container, currentUser);
+
+            } catch (error) {
+                console.error('Error cargando módulo:', error);
+                const container = document.getElementById('moduleContainer');
+                if (container) {
+                    container.innerHTML = `<div style="padding: 20px; color: #c00;">
+                        <h3>Error al cargar el módulo</h3>
+                        <p>${error.message || 'Error desconocido'}</p>
+                        <button onclick="loadModule('home')" class="btn-primary" style="margin-top: 10px;">Volver al Inicio</button>
+                    </div>`;
+                }
+            }
+        };
+
+        // ==================== UTILIDADES ====================
+
+        window.logoutUser = async () => {
+            if (confirm('¿Seguro que deseas cerrar sesión?')) {
+                try {
+                    await firebaseLogout();
+                    window.location.href = 'index.html';
+                } catch (error) {
+                    showAlert('error', 'Error al cerrar sesión: ' + error.message);
+                }
+            }
+        };
+
+        window.showAlert = (type, message) => {
+            const modal = document.getElementById('alertModal');
+            const overlay = document.getElementById('modalOverlay');
+            const title = document.getElementById('modalTitle');
+            const msg = document.getElementById('modalMessage');
+
+            title.textContent = type === 'error' ? 'Error' : 'Mensaje';
+            msg.textContent = message;
+            modal.style.display = 'block';
+            overlay.style.display = 'block';
+            modal.className = `alert-modal show ${type}`;
+        };
+
+        window.closeModal = () => {
+            document.getElementById('alertModal').style.display = 'none';
+            document.getElementById('modalOverlay').style.display = 'none';
+        };
+
+        window.confirmAction = () => {
+            // Controlado por módulos individuales
+            closeModal();
+        };
+
+        // Click en overlay para cerrar
+        document.getElementById('modalOverlay').addEventListener('click', window.closeModal);
+    </script>
+</body>
+</html>
