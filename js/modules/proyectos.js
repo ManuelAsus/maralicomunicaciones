@@ -563,8 +563,9 @@ async function pry_descargarReportePDF(reporteId, proyectoId, nombreProyecto, ti
         // Obtener las imágenes del proyecto
         const imagenesHTML = (proyecto.imagenes || [])
             .map(img => `<div style="text-align:center;margin:15px 0;">
-                <img src="${img.datos_base64}" alt="Imagen" style="max-width:200px;max-height:200px;border:1px solid #ddd;border-radius:4px;padding:8px;background:white;">
-                <p style="font-size:11px;color:#666;margin-top:4px;">${img.nombre_original || 'Imagen sin nombre'}</p>
+                <img src="${img.url_imagen}" alt="Imagen" style="max-width:200px;max-height:200px;border:1px solid #ddd;border-radius:4px;padding:8px;background:white;">
+                <p style="font-size:11px;color:#666;margin-top:4px;margin-bottom:2px;"><strong>${img.titulo || 'Imagen sin titulo'}</strong></p>
+                ${img.descripcion ? `<p style="font-size:10px;color:#999;margin:0;">${img.descripcion}</p>` : ''}
             </div>`).join('');
         
         const htmlContent = `
