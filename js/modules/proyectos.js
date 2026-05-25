@@ -427,7 +427,7 @@ async function pry_subirImagen(e, userId) {
                 titulo,
                 descripcion,
                 url_imagen: base64Data,
-                creado_en: serverTimestamp()
+                creado_en: new Date().toISOString()
             });
             
             await updateDoc(proyectoRef, { imagenes });
@@ -655,7 +655,7 @@ async function pry_descargarReportePDF(reporteId, proyectoId, nombreProyecto, ti
             <div class="title">${tipoReporte.toUpperCase()}</div>
             <div class="subtitle">${nombreProyecto}</div>
         </div>
-        <div class="header-right">MARALI</div>
+        <div class="header-right">Marali Comunicaciones</div>
     </div>
     
     <!-- Información del Proyecto -->
