@@ -35,18 +35,18 @@ export async function render(container, user) {
         </div>
 
         <!-- Detalle proyecto -->
-        <div id="pry_detalle_modal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:1000;overflow-y:auto;">
-            <div class="modal-content" style="width:95%;max-width:1200px;margin:20px auto;background:#fff;border-radius:8px;padding:20px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><h3 id="pry_detalle_titulo">Proyecto</h3><div><button class="btn-secondary" onclick="pry_cerrarDetalle()">Cerrar</button></div></div>
+        <div id="pry_detalle_modal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);align-items:center;justify-content:center;z-index:1000;overflow-y:auto;padding:20px;">
+            <div class="modal-content" style="width:95%;max-width:1200px;max-height:90vh;background:#fff;border-radius:8px;padding:0;display:flex;flex-direction:column;box-shadow:0 4px 6px rgba(0,0,0,0.1);">
+                <!-- Header fijo -->
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:20px;border-bottom:1px solid #ddd;background:#fff;flex-shrink:0;"><h3 id="pry_detalle_titulo">Proyecto</h3><div><button class="btn-secondary" onclick="pry_cerrarDetalle()" style="padding:8px 16px;">✕ Cerrar</button></div></div>
                 
-                <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
+                <!-- Contenido scrolleable -->
+                <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;padding:20px;overflow-y:auto;flex:1;">
                     <!-- Left: Detalles proyecto + actividades + reportes -->
-                    <div>
-                        <div id="pry_detalle_body"></div>
-                    </div>
+                    <div id="pry_detalle_body" style="overflow-y:auto;"></div>
                     
                     <!-- Right: Formularios -->
-                    <div style="background:#f9f9f9;padding:16px;border-radius:8px;border:1px solid #ddd;overflow-y:auto;max-height:600px;">
+                    <div style="background:#f9f9f9;padding:16px;border-radius:8px;border:1px solid #ddd;overflow-y:auto;max-height:none;">
                         <h4 style="margin-bottom:16px;border-bottom:2px solid #fcc30b;padding-bottom:8px;">⚙️ Acciones</h4>
                         
                         <!-- Form subir imagen -->
